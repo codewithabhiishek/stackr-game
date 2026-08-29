@@ -250,7 +250,7 @@ function MenuOverlay({ best, onStart }: { best: number; onStart: () => void }) {
         <div className="mt-5 flex items-center justify-center gap-1.5 font-mono text-[11px] tracking-[0.14em] text-white/50">
           <span>BUILT BY</span>
           <a
-            href="https://github.com/codewithabhiishek"
+            href="https://abhiishek.is-a.dev/"
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-amber underline decoration-amber/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
@@ -336,7 +336,7 @@ function OverOverlay({
         <div className="mt-5 text-center font-mono text-[10.5px] tracking-[0.14em] text-white/40">
           BUILT BY{" "}
           <a
-            href="https://github.com/codewithabhiishek"
+            href="https://abhiishek.is-a.dev/"
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-amber underline decoration-amber/30 underline-offset-2 transition-colors hover:text-white"
@@ -653,7 +653,7 @@ export default function App() {
       <div className="pointer-events-auto absolute bottom-2 right-3 z-10 hidden font-mono text-[10px] tracking-[0.14em] text-white/40 sm:block">
         BUILT BY{" "}
         <a
-          href="https://github.com/codewithabhiishek"
+          href="https://abhiishek.is-a.dev/"
           target="_blank"
           rel="noopener noreferrer"
           className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
