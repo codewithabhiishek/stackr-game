@@ -23,6 +23,7 @@
 | :--- | :--- | :--- |
 | **Drop Block** | `Space` / Click | Tap anywhere |
 | **Pause Game** | `P` | Pause button |
+| **Fullscreen / Zoom** | `F` | Fullscreen button |
 | **Restart Game** | `R` | Restart button |
 | **Toggle Sound** | `M` | Mute button |
 

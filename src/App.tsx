@@ -107,6 +107,16 @@ const BoltIcon = ({ className }: { className?: string }) => (
     <path d="M13 2 4 14h6l-1 8 9-12h-6z" fill="currentColor" stroke="none" />
   </Svg>
 );
+const FullscreenIcon = ({ className }: { className?: string }) => (
+  <Svg className={className}>
+    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+  </Svg>
+);
+const FullscreenExitIcon = ({ className }: { className?: string }) => (
+  <Svg className={className}>
+    <path d="M4 14h6v6m10-10h-6V4m0 6 7-7M3 21l7-7" />
+  </Svg>
+);
 
 /* ------------------------------ small pieces ------------------------------ */
 
@@ -373,6 +383,7 @@ export default function App() {
   const engineRef = useRef<StackEngine | null>(null);
   const [hud, setHud] = useState<Hud>(INITIAL);
   const [muted, setMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -392,13 +403,31 @@ export default function App() {
     });
   }, []);
 
+  const toggleFullscreen = useCallback(() => {
+    sfx.ui();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "KeyM") toggleMute();
+      if (e.code === "KeyF") toggleFullscreen();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [toggleMute]);
+  }, [toggleMute, toggleFullscreen]);
 
   const start = useCallback(() => {
     sfx.unlock();
@@ -494,7 +523,25 @@ export default function App() {
                 <button
                   type="button"
                   className="iconbtn"
+                  aria-label={isFullscreen ? "Exit Fullscreen" : "Fullscreen (F)"}
+                  title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    toggleFullscreen();
+                  }}
+                >
+                  {isFullscreen ? (
+                    <FullscreenExitIcon className="h-5 w-5" />
+                  ) : (
+                    <FullscreenIcon className="h-5 w-5" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="iconbtn"
                   aria-label={muted ? "Unmute" : "Mute"}
+                  title={muted ? "Unmute (M)" : "Mute (M)"}
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.currentTarget.blur();
@@ -543,6 +590,10 @@ export default function App() {
             <Key k="P" />
             <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
               PAUSE
+            </span>
+            <Key k="F" />
+            <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
+              FULLSCREEN
             </span>
             <Key k="R" />
             <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
