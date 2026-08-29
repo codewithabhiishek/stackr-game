@@ -246,6 +246,18 @@ function MenuOverlay({ best, onStart }: { best: number; onStart: () => void }) {
         <p className="mt-3 text-center text-[11px] font-bold tracking-[0.28em] text-white/40">
           {IS_TOUCH ? "OR TAP ANYWHERE" : "OR SMASH SPACE"}
         </p>
+
+        <div className="mt-5 flex items-center justify-center gap-1.5 font-mono text-[11px] tracking-[0.14em] text-white/50">
+          <span>BUILT BY</span>
+          <a
+            href="https://github.com/codewithabhiishek"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-amber underline decoration-amber/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+          >
+            ABHISHEK ↗
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -319,6 +331,18 @@ function OverOverlay({
             <HomeIcon className="h-4 w-4" />
             MENU
           </GameButton>
+        </div>
+
+        <div className="mt-5 text-center font-mono text-[10.5px] tracking-[0.14em] text-white/40">
+          BUILT BY{" "}
+          <a
+            href="https://github.com/codewithabhiishek"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-amber underline decoration-amber/30 underline-offset-2 transition-colors hover:text-white"
+          >
+            ABHISHEK ↗
+          </a>
         </div>
       </div>
     </div>
@@ -624,6 +648,19 @@ export default function App() {
           onMenu={toMenu}
         />
       )}
+
+      {/* persistent corner branding */}
+      <div className="pointer-events-auto absolute bottom-2 right-3 z-10 hidden font-mono text-[10px] tracking-[0.14em] text-white/40 sm:block">
+        BUILT BY{" "}
+        <a
+          href="https://github.com/codewithabhiishek"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
+        >
+          ABHISHEK ↗
+        </a>
+      </div>
     </div>
   );
 }
