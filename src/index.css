@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bungee", "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #05080f;
+  --color-deep: #0b1522;
+  --color-line: #1d3048;
+  --color-coral: #ff5e5b;
+  --color-amber: #ffc857;
+  --color-cyanx: #53d8ff;
+  --color-lime: #a8ff3e;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #05080f;
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+::selection {
+  background: #ffc857;
+  color: #05080f;
+}
+
+/* ---------- game chrome ---------- */
+
+.title-shadow {
+  text-shadow:
+    6px 6px 0 #ff5e5b,
+    -5px -5px 0 rgba(83, 216, 255, 0.85);
+}
+
+.title-shadow-sm {
+  text-shadow:
+    3px 3px 0 #ff5e5b,
+    -2px -2px 0 rgba(83, 216, 255, 0.85);
+}
+
+.panel {
+  background: rgba(9, 17, 29, 0.92);
+  border: 3px solid #05080f;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.5);
+}
+
+.btn {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 3px solid #05080f;
+  box-shadow: 5px 5px 0 #05080f;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.09s ease,
+    box-shadow 0.09s ease,
+    filter 0.15s ease;
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 #05080f;
+  filter: brightness(1.07);
+}
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 #05080f;
+}
+.btn-amber {
+  background: #ffc857;
+  color: #231a02;
+}
+.btn-coral {
+  background: #ff5e5b;
+  color: #1c0506;
+}
+.btn-cyan {
+  background: #53d8ff;
+  color: #06222e;
+}
+.btn-ghost {
+  background: rgba(16, 32, 50, 0.72);
+  color: #cfe6ff;
+}
+
+.iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(9, 17, 29, 0.92);
+  border: 3px solid #05080f;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  color: #cfe6ff;
+  cursor: pointer;
+  transition:
+    transform 0.09s ease,
+    box-shadow 0.09s ease,
+    color 0.15s ease;
+}
+.iconbtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+  color: #ffc857;
+}
+.iconbtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.chip {
+  border: 2px solid #05080f;
+  background: #0a1320;
+  padding: 4px 9px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.keycap {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 2px 8px 3px;
+  border: 2px solid #05080f;
+  border-radius: 6px;
+  background: #16283c;
+  color: #cfe6ff;
+  box-shadow: 0 3px 0 #05080f;
+}
+
+.heatbar {
+  background: linear-gradient(90deg, #a8ff3e, #ffc857 55%, #ff5e5b);
+}
+
+/* ---------- motion ---------- */
+
+@keyframes pop {
+  0% {
+    transform: scale(0.72) translateY(16px);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.035) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+.animate-pop {
+  animation: pop 0.4s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes comboPop {
+  0% {
+    transform: scale(1.45) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+.animate-combo-pop {
+  animation: comboPop 0.22s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes clutchPulse {
+  0%,
+  100% {
+    border-color: #05080f;
+    transform: rotate(0deg);
+  }
+  30% {
+    border-color: #ff5e5b;
+    transform: rotate(-1.3deg);
+  }
+  70% {
+    border-color: #ff5e5b;
+    transform: rotate(1.3deg);
+  }
+}
+.animate-clutch {
+  animation: clutchPulse 0.5s linear infinite;
+}
+
+@keyframes blinkSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.animate-blink-soft {
+  animation: blinkSoft 1.4s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+.animate-float {
+  animation: floatY 3.4s ease-in-out infinite;
+}
