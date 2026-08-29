@@ -368,9 +368,11 @@ export class StackEngine {
   }
 
   private ampFor(a: Active) {
-    // Sweep a comfortable arc — close enough to the tower that drops land and
-    // the stack visibly builds, but wide enough that a miss is still possible.
-    return clamp((this.W / 2 / (COS * this.zoom)) * 0.62, 240, 430);
+    // Sweep a comfortable arc within the viewport on all device screen sizes.
+    const dim = a.axis === "x" ? a.w : a.d;
+    const maxAvailable = (this.W * 0.44) / Math.max(0.1, COS * this.zoom);
+    const comfortable = Math.max(dim * 0.9, 110);
+    return clamp(comfortable, 100, Math.max(110, maxAvailable));
   }
 
   private pushHud() {
@@ -449,7 +451,7 @@ export class StackEngine {
       this.shakeT = Math.max(0, this.shakeT - dt * 2.2);
       this.flashA = Math.max(0, this.flashA - dt * 1.6);
 
-      // camera + zoom
+      // camera + responsive zoom
       let targetCam: number;
       if (this.phase === "menu")
         targetCam =
@@ -460,8 +462,11 @@ export class StackEngine {
       else targetCam = this.camY;
       this.camY += (targetCam - this.camY) * Math.min(1, dt * 3.2);
 
-      const tz = clamp(1.04 - Math.max(0, this.blocks.length - 8) * 0.007, 0.7, 1.04);
-      this.zoom += (tz - this.zoom) * Math.min(1, dt * 2);
+      const widthScale = clamp(this.W / 460, 0.62, 1.05);
+      const heightScale = clamp(this.H / 720, 0.65, 1.0);
+      const deviceScale = Math.min(widthScale, heightScale);
+      const tz = deviceScale * clamp(1.04 - Math.max(0, this.blocks.length - 8) * 0.007, 0.7, 1.04);
+      this.zoom += (tz - this.zoom) * Math.min(1, dt * 2.5);
 
       // active block motion
       if (this.phase === "playing" && this.active && !this.locked) {

@@ -479,6 +479,7 @@ export default function App() {
                   type="button"
                   className="iconbtn"
                   aria-label={hud.phase === "paused" ? "Resume" : "Pause"}
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.currentTarget.blur();
                     togglePause();
@@ -494,6 +495,7 @@ export default function App() {
                   type="button"
                   className="iconbtn"
                   aria-label={muted ? "Unmute" : "Mute"}
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.currentTarget.blur();
                     toggleMute();
@@ -511,7 +513,7 @@ export default function App() {
 
           {/* heat combo meter */}
           {hud.combo >= 2 && hud.phase === "playing" && (
-            <div className="pointer-events-none absolute bottom-[max(4rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 sm:bottom-20">
+            <div className="pointer-events-none absolute bottom-[max(3.8rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 sm:bottom-20">
               <div key={hud.combo} className="animate-combo-pop panel px-3 py-2 sm:px-4 sm:py-2.5">
                 <div className="flex items-center justify-between gap-4">
                   <span className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] text-lime">
@@ -532,32 +534,29 @@ export default function App() {
             </div>
           )}
 
-          {/* control hints */}
-          {!IS_TOUCH ? (
-            <div className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 hidden -translate-x-1/2 items-center gap-2.5 sm:flex">
-              <Key k="SPACE" />
-              <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
-                DROP
-              </span>
-              <Key k="P" />
-              <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
-                PAUSE
-              </span>
-              <Key k="R" />
-              <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
-                RESTART
-              </span>
-              <Key k="M" />
-              <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
-                MUTE
-              </span>
+          {/* control hints (responsive for desktop & mobile) */}
+          <div className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 hidden -translate-x-1/2 items-center gap-2.5 sm:flex">
+            <Key k="SPACE" />
+            <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
+              DROP
+            </span>
+            <Key k="P" />
+            <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
+              PAUSE
+            </span>
+            <Key k="R" />
+            <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
+              RESTART
+            </span>
+            <Key k="M" />
+            <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
+              MUTE
+            </span>
+          </div>
+          {hud.phase === "playing" && (
+            <div className="animate-blink-soft pointer-events-none absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[11px] font-bold tracking-[0.34em] text-white/50 sm:hidden">
+              TAP TO DROP
             </div>
-          ) : (
-            hud.phase === "playing" && (
-              <div className="animate-blink-soft pointer-events-none absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[11px] font-bold tracking-[0.34em] text-white/50 sm:hidden">
-                TAP TO DROP
-              </div>
-            )
           )}
         </>
       )}
