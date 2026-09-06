@@ -15,7 +15,7 @@ class Sfx {
     if (!this.ctx) {
       this.ctx = new AC();
       this.master = this.ctx.createGain();
-      this.master.gain.value = 0.5;
+      this.master.gain.value = this.muted ? 0 : 0.5;
       this.master.connect(this.ctx.destination);
     }
     if (this.ctx.state === "suspended") void this.ctx.resume();
@@ -56,6 +56,10 @@ class Sfx {
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
     osc.connect(g);
     g.connect(this.master);
+    osc.onended = () => {
+      osc.disconnect();
+      g.disconnect();
+    };
     osc.start(t0);
     osc.stop(t0 + dur + 0.03);
   }

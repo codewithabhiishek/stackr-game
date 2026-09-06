@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import confetti from "canvas-confetti";
 import { StackEngine } from "./game/engine";
 import type { Hud } from "./game/engine";
 import { sfx } from "./game/audio";
@@ -182,7 +183,7 @@ function MenuOverlay({ best, onStart }: { best: number; onStart: () => void }) {
       onPointerDown={onStart}
     >
       <div
-        className="w-full max-w-lg animate-pop py-4"
+        className="my-auto w-full max-w-lg animate-pop py-4"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="relative -rotate-1">
@@ -272,9 +273,28 @@ function OverOverlay({
   onRetry: () => void;
   onMenu: () => void;
 }) {
+  useEffect(() => {
+    if (hud.newBest && hud.score > 0) {
+      try {
+        confetti({
+          particleCount: 65,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#a8ff3e", "#ffc857", "#53d8ff", "#ff5e5b"],
+        });
+      } catch {}
+    }
+  }, [hud.newBest, hud.score]);
+
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[rgba(6,4,10,0.55)] p-4">
-      <div className="w-full max-w-md animate-pop py-4">
+    <div
+      className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[rgba(6,4,10,0.55)] p-4"
+      onPointerDown={onRetry}
+    >
+      <div
+        className="my-auto w-full max-w-md animate-pop py-4"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <div className="flex -rotate-1 items-center gap-2.5 sm:gap-3">
           <SkullIcon className="h-9 w-9 shrink-0 text-coral sm:h-12 sm:w-12" />
           <div>
@@ -333,6 +353,10 @@ function OverOverlay({
           </GameButton>
         </div>
 
+        <p className="mt-3 text-center text-[11px] font-bold tracking-[0.28em] text-white/40">
+          {IS_TOUCH ? "OR TAP ANYWHERE" : "OR SMASH SPACE"}
+        </p>
+
         <div className="mt-5 text-center font-mono text-[10.5px] tracking-[0.14em] text-white/40">
           BUILT BY{" "}
           <a
@@ -359,8 +383,14 @@ function PauseOverlay({
   onMenu: () => void;
 }) {
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-[rgba(4,8,16,0.62)] p-4">
-      <div className="w-full max-w-xs animate-pop text-center">
+    <div
+      className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[rgba(4,8,16,0.62)] p-4"
+      onPointerDown={onResume}
+    >
+      <div
+        className="my-auto w-full max-w-xs animate-pop text-center py-4"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <PauseIcon className="mx-auto h-10 w-10 text-cyanx" />
           <h2 className="title-shadow-sm mt-3 font-display text-4xl text-white sm:text-5xl">
             PAUSED
@@ -406,8 +436,22 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<StackEngine | null>(null);
   const [hud, setHud] = useState<Hud>(INITIAL);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(() => {
+    try {
+      return localStorage.getItem("stackr.muted") === "1";
+    } catch {
+      return false;
+    }
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("stackr.muted") === "1") {
+        sfx.setMuted(true);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -422,8 +466,12 @@ export default function App() {
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
-      sfx.setMuted(!m);
-      return !m;
+      const next = !m;
+      sfx.setMuted(next);
+      try {
+        localStorage.setItem("stackr.muted", next ? "1" : "0");
+      } catch {}
+      return next;
     });
   }, []);
 

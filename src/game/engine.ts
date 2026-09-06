@@ -147,6 +147,8 @@ export class StackEngine {
   private peakBlocks = 0;
   private newBest = false;
   private locked = false;
+  private lastDropTime = 0;
+  private sessionBestStart = 0;
 
   private camY = 0;
   private zoom = 1;
@@ -249,8 +251,10 @@ export class StackEngine {
     this.combo = 0;
     this.maxCombo = 0;
     this.perfects = 0;
-    this.peakBlocks = 1;
+    this.peakBlocks = 0;
     this.newBest = false;
+    this.sessionBestStart = this.best;
+    this.lastDropTime = 0;
     this.locked = false;
     this.collapseTimer = -1;
     this.camY = 0;
@@ -328,7 +332,7 @@ export class StackEngine {
     }
     this.active = {
       axis: this.blocks.length % 2 === 1 ? "x" : "z",
-      t: Math.random() * Math.PI * 2,
+      t: this.phase === "playing" ? 0 : Math.random() * Math.PI * 2,
       dir: (Math.random() < 0.5 ? 1 : -1) as 1 | -1,
       x: top.x,
       z: top.z,
@@ -368,11 +372,11 @@ export class StackEngine {
   }
 
   private ampFor(a: Active) {
-    // Sweep a comfortable arc within the viewport on all device screen sizes.
+    // Sweep an arc that completely clears the tower so timing edge misses are fair
     const dim = a.axis === "x" ? a.w : a.d;
-    const maxAvailable = (this.W * 0.44) / Math.max(0.1, COS * this.zoom);
-    const comfortable = Math.max(dim * 0.9, 110);
-    return clamp(comfortable, 100, Math.max(110, maxAvailable));
+    const maxAvailable = (this.W * 0.46) / Math.max(0.1, COS * this.zoom);
+    const comfortable = Math.max(dim * 1.35, 120);
+    return clamp(comfortable, 110, Math.max(120, maxAvailable));
   }
 
   private pushHud() {
@@ -453,19 +457,26 @@ export class StackEngine {
 
       // camera + responsive zoom
       let targetCam: number;
-      if (this.phase === "menu")
+      if (this.phase === "menu") {
         targetCam =
           Math.max(0, this.blocks.length * BLOCK_H - 300) +
           Math.sin(this.time * 0.5) * 18;
-      else if (this.phase === "playing")
-        targetCam = Math.max(0, this.blocks.length * BLOCK_H - 190);
-      else targetCam = this.camY;
+      } else if (this.phase === "playing") {
+        if (this.collapseTimer >= 0) {
+          targetCam = this.camY;
+        } else {
+          targetCam = Math.max(0, this.blocks.length * BLOCK_H - 190);
+        }
+      } else {
+        targetCam = this.camY;
+      }
       this.camY += (targetCam - this.camY) * Math.min(1, dt * 3.2);
 
       const widthScale = clamp(this.W / 460, 0.62, 1.05);
       const heightScale = clamp(this.H / 720, 0.65, 1.0);
       const deviceScale = Math.min(widthScale, heightScale);
-      const tz = deviceScale * clamp(1.04 - Math.max(0, this.blocks.length - 8) * 0.007, 0.7, 1.04);
+      const blockCount = this.collapseTimer >= 0 ? this.peakBlocks : this.blocks.length;
+      const tz = deviceScale * clamp(1.04 - Math.max(0, blockCount - 8) * 0.007, 0.7, 1.04);
       this.zoom += (tz - this.zoom) * Math.min(1, dt * 2.5);
 
       // active block motion
@@ -494,6 +505,10 @@ export class StackEngine {
   }
 
   private drop(auto = false) {
+    const now = performance.now();
+    if (!auto && now - this.lastDropTime < 90) return;
+    this.lastDropTime = now;
+
     const a = this.active;
     const top = this.blocks[this.blocks.length - 1];
     if (!a || !top || this.locked) return;
@@ -516,7 +531,8 @@ export class StackEngine {
     }
 
     const y = this.blocks.length * BLOCK_H;
-    const perfect = auto || Math.abs(delta) <= PERFECT_EPS;
+    const dynEps = Math.max(PERFECT_EPS, this.speed() * 2.2);
+    const perfect = auto || Math.abs(delta) <= dynEps;
     let nw = a.w;
     let nd = a.d;
     let nx = a.x;
@@ -595,14 +611,34 @@ export class StackEngine {
     }
 
     this.blocks.push({ x: nx, z: nz, w: nw, d: nd, hue: a.hue });
-    this.peakBlocks = this.blocks.length;
+    const placed = this.blocks.length - 1;
+    this.peakBlocks = placed;
 
-    if (!auto && this.blocks.length % 10 === 0) {
+    if (!auto && this.score > this.best) {
+      this.best = this.score;
+      this.newBest = true;
+      try {
+        localStorage.setItem(BEST_KEY, String(this.best));
+      } catch {
+        /* private mode etc. */
+      }
+    }
+
+    if (!auto && placed > 0 && placed % 10 === 0) {
       // ALTITUDE BONUS = +30 for every 10 blocks of height
       const bonus = 30;
       this.score += bonus;
+      if (this.score > this.best) {
+        this.best = this.score;
+        this.newBest = true;
+        try {
+          localStorage.setItem(BEST_KEY, String(this.best));
+        } catch {
+          /* private mode etc. */
+        }
+      }
       this.popups.push({
-        x: 0, z: 0, y: 0, text: `ALT ${this.blocks.length}  +${bonus}`, life: 0, max: 1.1,
+        x: 0, z: 0, y: 0, text: `ALT ${placed}  +${bonus}`, life: 0, max: 1.1,
         size: 30, color: "#53d8ff", center: true, rot: -0.04,
       });
       sfx.milestone();
@@ -649,8 +685,8 @@ export class StackEngine {
     this.collapseTimer = -1;
     this.phase = "over";
     this.locked = false;
-    this.newBest = this.score > this.best;
-    if (this.newBest) {
+    this.newBest = this.score > this.sessionBestStart && this.score > 0;
+    if (this.score > this.best) {
       this.best = this.score;
       try {
         localStorage.setItem(BEST_KEY, String(this.best));
@@ -829,7 +865,7 @@ export class StackEngine {
 
     // stars (parallax)
     for (const s of this.stars) {
-      const sy = (((s.y * H - this.camY * 0.12 * this.zoom) % H) + H) % H;
+      const sy = (((s.y * H + this.camY * 0.12 * this.zoom) % H) + H) % H;
       const tw = 0.3 + 0.35 * (0.5 + 0.5 * Math.sin(this.time * 2 + s.p));
       ctx.fillStyle = `rgba(210,230,255,${tw.toFixed(3)})`;
       ctx.fillRect(s.x * W, sy, s.r, s.r);
@@ -843,8 +879,6 @@ export class StackEngine {
     glow.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
-
-    this.drawGrid();
 
     // motes
     for (const m of this.motes) {
@@ -860,6 +894,8 @@ export class StackEngine {
       const m = this.shakeMag * this.shakeT;
       ctx.translate((Math.random() - 0.5) * 2 * m, (Math.random() - 0.5) * 2 * m);
     }
+
+    this.drawGrid();
 
     // pedestal
     this.box(0, 0, BASE + 150, BASE + 150, -84, 42, 218, 24, 1, 0, null);
