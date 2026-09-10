@@ -290,7 +290,8 @@ function MenuOverlay({
             }}
             className="flex items-center gap-1.5 border border-amber/40 bg-amber/10 px-2.5 py-1 text-[11px] font-bold text-amber shadow-[2px_2px_0_#05080f] transition-all hover:bg-amber hover:text-ink active:translate-x-0.5 active:translate-y-0.5"
           >
-            <span>⚡ SUGGEST & FEEDBACK ↗</span>
+            <FeedbackIcon className="h-3.5 w-3.5" />
+            <span>SUGGEST & FEEDBACK ↗</span>
           </button>
         </div>
       </div>
@@ -424,9 +425,10 @@ function OverOverlay({
                 e.stopPropagation();
                 onOpenFeedback();
               }}
-              className="btn btn-amber w-full px-2 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
+              className="btn btn-amber flex w-full items-center justify-center gap-1.5 px-2 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
             >
-              ⚡ FEEDBACK
+              <FeedbackIcon className="h-3.5 w-3.5" />
+              <span>FEEDBACK</span>
             </button>
           </div>
         </div>
@@ -526,9 +528,10 @@ function PauseOverlay({
               e.stopPropagation();
               onOpenFeedback();
             }}
-            className="btn btn-amber w-full py-2.5 text-xs font-bold"
+            className="btn btn-amber flex w-full items-center justify-center gap-1.5 py-2.5 text-xs font-bold"
           >
-            ⚡ SUGGEST & FEEDBACK
+            <FeedbackIcon className="h-4 w-4" />
+            <span>SUGGEST & FEEDBACK</span>
           </button>
         </div>
 
@@ -874,9 +877,10 @@ export default function App() {
         <button
           type="button"
           onClick={() => setFeedbackOpen(true)}
-          className="font-bold text-amber underline decoration-amber/30 transition-colors hover:text-white"
+          className="inline-flex items-center gap-1 font-bold text-amber underline decoration-amber/30 transition-colors hover:text-white"
         >
-          ⚡ FEEDBACK
+          <FeedbackIcon className="h-3.5 w-3.5" />
+          <span>FEEDBACK</span>
         </button>
       </div>
 

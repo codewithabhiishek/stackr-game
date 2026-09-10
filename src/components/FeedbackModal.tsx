@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { X, Send, Check, Copy, AlertCircle, Sparkles, Bug, MessageSquare, Flame } from "lucide-react";
+import { X, Send, Check, Copy, AlertCircle, Sparkles, Bug, MessageSquare } from "lucide-react";
 
 interface FeedbackModalProps {
   open: boolean;
@@ -32,18 +32,18 @@ const CATEGORIES: Category[] = [
     badge: "MECHANIC / IDEA",
     hint: "Got a sick idea for a new block skin, clutch mechanic, or game mode?",
     placeholder: "Pitch your game mechanic, theme idea, or power-up idea here...",
-    subjectPrefix: "⚡ Stacker Idea",
+    subjectPrefix: "Stacker Idea",
     templates: [
       {
-        label: "🎮 New Game Mode",
+        label: "New Game Mode",
         text: "Add a 'Reverse Gravity' or 'Sudden Death' speed run mode where blocks move 2x faster!",
       },
       {
-        label: "🎨 Custom Themes",
+        label: "Custom Themes",
         text: "Add unlockable block skins like Cyberpunk Neon, Retro 8-bit, or Pastel Arcade.",
       },
       {
-        label: "🔥 Combo Power-up",
+        label: "Combo Power-up",
         text: "Hitting 5 perfect drops in a row should award a slow-motion rewind for the next block!",
       },
     ],
@@ -55,18 +55,18 @@ const CATEGORIES: Category[] = [
     badge: "GLITCH / ISSUE",
     hint: "Spotted block misalignment, audio stutter, mobile touch delay, or score glitch?",
     placeholder: "What went wrong? (e.g. block slice didn't animate, touch tapped twice, audio cut off)...",
-    subjectPrefix: "🐛 Stacker Bug",
+    subjectPrefix: "Stacker Bug",
     templates: [
       {
-        label: "📱 Mobile Touch Delay",
+        label: "Mobile Touch Delay",
         text: "On mobile browsers, there's a slight tap lag when dropping blocks rapidly.",
       },
       {
-        label: "🔊 Audio Stutter",
+        label: "Audio Stutter",
         text: "Sound effects cut out or crackle when stacking beyond 20 blocks.",
       },
       {
-        label: "📐 Slice Alignment",
+        label: "Slice Alignment",
         text: "The block slice physics occasionally misaligned on edge-drop near the top.",
       },
     ],
@@ -78,14 +78,14 @@ const CATEGORIES: Category[] = [
     badge: "GENERAL NOTE",
     hint: "Loving the game? Flexing a high score, dropping a roast, or saying hi to Abhishek?",
     placeholder: "Drop your feedback, high score flex, or note to Abhishek...",
-    subjectPrefix: "💬 Stacker Feedback",
+    subjectPrefix: "Stacker Feedback",
     templates: [
       {
-        label: "🏆 High Score Flex",
+        label: "High Score Flex",
         text: "Just hit a new high score on Stacker! The clutch audio and shake feel so satisfying.",
       },
       {
-        label: "🤝 Collaboration",
+        label: "Collaboration",
         text: "Hey Abhishek, loved your work on Stacker! Would love to connect regarding web dev projects.",
       },
     ],
@@ -199,14 +199,14 @@ export default function FeedbackModal({ open, onClose, stats }: FeedbackModalPro
       // 2. Strix Speed-Trap Defense (< 1.8 seconds)
       const elapsedMs = Date.now() - formOpenedAtRef.current;
       if (elapsedMs < 1800) {
-        setErrorMessage("⚡ Submission too fast! Please take a moment to type your thought.");
+        setErrorMessage("Submission too fast! Please take a moment to type your thought.");
         setStatus("error");
         return;
       }
 
       // 3. Strix Cooldown Enforcement
       if (cooldownRemaining > 0) {
-        setErrorMessage(`⏳ Cooldown active: Please wait ${cooldownRemaining}s before sending another.`);
+        setErrorMessage(`Cooldown active: Please wait ${cooldownRemaining}s before sending another.`);
         setStatus("error");
         return;
       }
@@ -214,7 +214,7 @@ export default function FeedbackModal({ open, onClose, stats }: FeedbackModalPro
       // 4. Strix Hourly Rate Limit Defense
       const hourlyDispatches = getRecentDispatchesCount();
       if (hourlyDispatches >= MAX_HOURLY_DISPATCHES) {
-        setErrorMessage(`⚠️ Hourly limit reached (${MAX_HOURLY_DISPATCHES}/hr). Please try again in a bit or email directly.`);
+        setErrorMessage(`Hourly limit reached (${MAX_HOURLY_DISPATCHES}/hr). Please try again in a bit or email directly.`);
         setStatus("error");
         return;
       }
@@ -326,7 +326,7 @@ export default function FeedbackModal({ open, onClose, stats }: FeedbackModalPro
           <div className="flex items-start justify-between gap-3 border-b-2 border-line pb-3">
             <div className="flex items-center gap-2.5">
               <div className="flex h-10 w-10 items-center justify-center border-2 border-ink bg-amber shadow-[3px_3px_0_#05080f]">
-                <Flame className="h-6 w-6 text-ink" />
+                <MessageSquare className="h-6 w-6 text-ink" />
               </div>
               <div>
                 <h3 className="font-display text-2xl leading-none text-white sm:text-3xl">
@@ -531,7 +531,7 @@ export default function FeedbackModal({ open, onClose, stats }: FeedbackModalPro
               {/* Cooldown Active Banner */}
               {cooldownRemaining > 0 && (
                 <div className="border border-amber/40 bg-amber/10 p-2 text-[11px] text-amber">
-                  ⏳ Cooldown in effect ({cooldownRemaining}s). Anti-spam protection active.
+                  Cooldown in effect ({cooldownRemaining}s). Anti-spam protection active.
                 </div>
               )}
 
