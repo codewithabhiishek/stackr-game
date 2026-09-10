@@ -1,4 +1,5 @@
 import { sfx } from "./audio";
+import { haptics } from "./haptics";
 
 export type Phase = "menu" | "playing" | "paused" | "over";
 
@@ -185,7 +186,8 @@ export class StackEngine {
     }
   };
 
-  private onPointer = () => {
+  private onPointer = (e: PointerEvent) => {
+    e.preventDefault();
     sfx.unlock();
     if (this.phase === "playing") this.drop();
   };
@@ -573,6 +575,7 @@ export class StackEngine {
           });
         }
         sfx.perfect(this.combo);
+        haptics.perfect(this.combo);
       } else {
         this.burst(nx, nz, y + BLOCK_H, a.hue, 8, 150);
       }
@@ -613,6 +616,7 @@ export class StackEngine {
       this.flash("255,255,255", 0.06);
       this.addShake(3);
       sfx.place();
+      haptics.slice();
     }
 
     this.blocks.push({ x: nx, z: nz, w: nw, d: nd, hue: a.hue });
@@ -647,6 +651,7 @@ export class StackEngine {
         size: 30, color: "#53d8ff", center: true, rot: -0.04,
       });
       sfx.milestone();
+      haptics.milestone();
     }
 
     this.spawnActive();
@@ -669,6 +674,7 @@ export class StackEngine {
     this.addShake(16);
     sfx.slice();
     sfx.collapse();
+    haptics.fumble();
 
     const arr = this.blocks;
     this.blocks = [];

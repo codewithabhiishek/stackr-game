@@ -5,6 +5,16 @@ class Sfx {
   private master: GainNode | null = null;
   muted = false;
 
+  constructor() {
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && this.ctx && this.ctx.state === "suspended") {
+          void this.ctx.resume().catch(() => {});
+        }
+      });
+    }
+  }
+
   private ensure(): AudioContext | null {
     if (typeof window === "undefined") return null;
     const AC =

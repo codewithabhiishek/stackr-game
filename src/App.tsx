@@ -124,6 +124,13 @@ const FeedbackIcon = ({ className }: { className?: string }) => (
     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
   </Svg>
 );
+const ShareIcon = ({ className }: { className?: string }) => (
+  <Svg className={className}>
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+    <polyline points="16 6 12 2 8 6" />
+    <line x1="12" y1="2" x2="12" y2="15" />
+  </Svg>
+);
 
 /* ------------------------------ small pieces ------------------------------ */
 
@@ -315,6 +322,25 @@ function OverOverlay({
     }
   }, [hud.newBest, hud.score]);
 
+  const [copiedShare, setCopiedShare] = useState(false);
+
+  const handleShare = useCallback(() => {
+    const text = `🧱 I just stacked ${hud.blocks} blocks with ${hud.perfects} PERFECT drops on STACKR! Score: ${hud.score}. Can you beat me? https://stackr-game-ten.vercel.app`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: "STACKR — My Tower Run",
+          text,
+          url: "https://stackr-game-ten.vercel.app",
+        })
+        .catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2000);
+    }
+  }, [hud.blocks, hud.perfects, hud.score]);
+
   return (
     <div
       className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[rgba(6,4,10,0.55)] p-4"
@@ -371,10 +397,10 @@ function OverOverlay({
             <RestartIcon className="h-5 w-5" />
             RUN IT BACK
           </GameButton>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <GameButton
               variant="btn-ghost"
-              className="w-full px-4 py-2.5 text-sm"
+              className="w-full px-2 py-2.5 text-xs"
               onClick={onMenu}
               label="Back to menu"
             >
@@ -385,11 +411,22 @@ function OverOverlay({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
+                handleShare();
+              }}
+              className="btn btn-cyan w-full px-2 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
+            >
+              <ShareIcon className="h-3.5 w-3.5" />
+              {copiedShare ? "COPIED!" : "SHARE"}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
                 onOpenFeedback();
               }}
-              className="btn btn-amber w-full px-3 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
+              className="btn btn-amber w-full px-2 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
             >
-              ⚡ SUGGEST / FEEDBACK
+              ⚡ FEEDBACK
             </button>
           </div>
         </div>
@@ -614,6 +651,16 @@ export default function App() {
         ref={canvasRef}
         className="absolute inset-0 block h-full w-full cursor-pointer touch-none"
       />
+
+      {/* High heat vignette glow on streak */}
+      {hud.combo >= 4 && hud.phase === "playing" && (
+        <div
+          className="pointer-events-none absolute inset-0 z-0 transition-all duration-300"
+          style={{
+            boxShadow: `inset 0 0 ${Math.min(110, hud.combo * 16)}px rgba(255, 94, 91, ${Math.min(0.38, (hud.combo / 14) * 0.38)})`,
+          }}
+        />
+      )}
 
       {/* ------------------------------- HUD ------------------------------- */}
       {inGame && (
