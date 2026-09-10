@@ -536,11 +536,7 @@ export default function FeedbackModal({ open, onClose, stats }: FeedbackModalPro
               )}
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <div className="font-mono text-[10px] tracking-wide text-white/40">
-                  DEFENDED BY STRIX AI 🛡️
-                </div>
-
+              <div className="flex items-center justify-end gap-2 pt-1">
                 <div className="flex items-center gap-2">
                   {message.trim().length > 0 && (
                     <button
