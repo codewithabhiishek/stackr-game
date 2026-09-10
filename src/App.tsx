@@ -4,6 +4,7 @@ import confetti from "canvas-confetti";
 import { StackEngine } from "./game/engine";
 import type { Hud } from "./game/engine";
 import { sfx } from "./game/audio";
+import FeedbackModal from "./components/FeedbackModal";
 
 const INITIAL: Hud = {
   phase: "menu",
@@ -176,7 +177,15 @@ function Key({ k }: { k: string }) {
 
 /* -------------------------------- overlays -------------------------------- */
 
-function MenuOverlay({ best, onStart }: { best: number; onStart: () => void }) {
+function MenuOverlay({
+  best,
+  onStart,
+  onOpenFeedback,
+}: {
+  best: number;
+  onStart: () => void;
+  onOpenFeedback: () => void;
+}) {
   return (
     <div
       className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-[rgba(4,8,16,0.52)] p-4"
@@ -248,16 +257,29 @@ function MenuOverlay({ best, onStart }: { best: number; onStart: () => void }) {
           {IS_TOUCH ? "OR TAP ANYWHERE" : "OR SMASH SPACE"}
         </p>
 
-        <div className="mt-5 flex items-center justify-center gap-1.5 font-mono text-[11px] tracking-[0.14em] text-white/50">
-          <span>BUILT BY</span>
-          <a
-            href="https://abhiishek.is-a.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-amber underline decoration-amber/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 font-mono text-[11px] tracking-[0.14em] text-white/50">
+          <div className="flex items-center gap-1.5">
+            <span>BUILT BY</span>
+            <a
+              href="https://abhiishek.is-a.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-amber underline decoration-amber/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+            >
+              ABHISHEK ↗
+            </a>
+          </div>
+          <span className="hidden text-white/30 sm:inline">//</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenFeedback();
+            }}
+            className="flex items-center gap-1.5 border border-amber/40 bg-amber/10 px-2.5 py-1 text-[11px] font-bold text-amber shadow-[2px_2px_0_#05080f] transition-all hover:bg-amber hover:text-ink active:translate-x-0.5 active:translate-y-0.5"
           >
-            ABHISHEK ↗
-          </a>
+            <span>⚡ SUGGEST & FEEDBACK ↗</span>
+          </button>
         </div>
       </div>
     </div>
@@ -268,10 +290,12 @@ function OverOverlay({
   hud,
   onRetry,
   onMenu,
+  onOpenFeedback,
 }: {
   hud: Hud;
   onRetry: () => void;
   onMenu: () => void;
+  onOpenFeedback: () => void;
 }) {
   useEffect(() => {
     if (hud.newBest && hud.score > 0) {
@@ -333,7 +357,7 @@ function OverOverlay({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-2.5">
           <GameButton
             className="w-full px-6 py-3.5 text-xl"
             onClick={onRetry}
@@ -342,31 +366,56 @@ function OverOverlay({
             <RestartIcon className="h-5 w-5" />
             RUN IT BACK
           </GameButton>
-          <GameButton
-            variant="btn-ghost"
-            className="w-full px-6 py-2.5 text-sm"
-            onClick={onMenu}
-            label="Back to menu"
-          >
-            <HomeIcon className="h-4 w-4" />
-            MENU
-          </GameButton>
+          <div className="grid grid-cols-2 gap-2">
+            <GameButton
+              variant="btn-ghost"
+              className="w-full px-4 py-2.5 text-sm"
+              onClick={onMenu}
+              label="Back to menu"
+            >
+              <HomeIcon className="h-4 w-4" />
+              MENU
+            </GameButton>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFeedback();
+              }}
+              className="btn btn-amber w-full px-3 py-2.5 text-[11px] font-bold tracking-wider sm:text-xs"
+            >
+              ⚡ SUGGEST / FEEDBACK
+            </button>
+          </div>
         </div>
 
         <p className="mt-3 text-center text-[11px] font-bold tracking-[0.28em] text-white/40">
           {IS_TOUCH ? "OR TAP ANYWHERE" : "OR SMASH SPACE"}
         </p>
 
-        <div className="mt-5 text-center font-mono text-[10.5px] tracking-[0.14em] text-white/40">
-          BUILT BY{" "}
-          <a
-            href="https://abhiishek.is-a.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-amber underline decoration-amber/30 underline-offset-2 transition-colors hover:text-white"
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2 font-mono text-[10.5px] tracking-[0.14em] text-white/40">
+          <div>
+            BUILT BY{" "}
+            <a
+              href="https://abhiishek.is-a.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-amber underline decoration-amber/30 underline-offset-2 transition-colors hover:text-white"
+            >
+              ABHISHEK ↗
+            </a>
+          </div>
+          <span>//</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenFeedback();
+            }}
+            className="text-amber underline decoration-amber/30 hover:text-white"
           >
-            ABHISHEK ↗
-          </a>
+            SUGGEST IDEAS ↗
+          </button>
         </div>
       </div>
     </div>
@@ -444,6 +493,7 @@ export default function App() {
     }
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -685,9 +735,20 @@ export default function App() {
       )}
 
       {/* ----------------------------- overlays ---------------------------- */}
-      {hud.phase === "menu" && <MenuOverlay best={hud.best} onStart={start} />}
+      {hud.phase === "menu" && (
+        <MenuOverlay
+          best={hud.best}
+          onStart={start}
+          onOpenFeedback={() => setFeedbackOpen(true)}
+        />
+      )}
       {hud.phase === "over" && (
-        <OverOverlay hud={hud} onRetry={start} onMenu={toMenu} />
+        <OverOverlay
+          hud={hud}
+          onRetry={start}
+          onMenu={toMenu}
+          onOpenFeedback={() => setFeedbackOpen(true)}
+        />
       )}
       {hud.phase === "paused" && (
         <PauseOverlay
@@ -697,18 +758,35 @@ export default function App() {
         />
       )}
 
-      {/* persistent corner branding */}
-      <div className="pointer-events-auto absolute bottom-2 right-3 z-10 hidden font-mono text-[10px] tracking-[0.14em] text-white/40 sm:block">
-        BUILT BY{" "}
-        <a
-          href="https://abhiishek.is-a.dev/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
+      {/* persistent corner branding & feedback */}
+      <div className="pointer-events-auto absolute bottom-2 right-3 z-10 hidden items-center gap-2.5 font-mono text-[10px] tracking-[0.14em] text-white/40 sm:flex">
+        <div>
+          BUILT BY{" "}
+          <a
+            href="https://abhiishek.is-a.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
+          >
+            ABHISHEK ↗
+          </a>
+        </div>
+        <span className="text-white/25">//</span>
+        <button
+          type="button"
+          onClick={() => setFeedbackOpen(true)}
+          className="font-bold text-amber underline decoration-amber/30 transition-colors hover:text-white"
         >
-          ABHISHEK ↗
-        </a>
+          ⚡ FEEDBACK
+        </button>
       </div>
+
+      {/* Suggestion & Feedback Modal with Strix Security */}
+      <FeedbackModal
+        open={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        stats={{ score: hud.score, best: hud.best, blocks: hud.blocks }}
+      />
     </div>
   );
 }
