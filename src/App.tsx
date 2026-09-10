@@ -860,29 +860,31 @@ export default function App() {
         />
       )}
 
-      {/* persistent corner branding & feedback (only on wide desktop to prevent collision with keyboard hints or tablet touch areas) */}
-      <div className="pointer-events-auto absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-4 z-10 hidden items-center gap-2.5 font-mono text-[10.5px] tracking-[0.14em] text-white/40 min-[1200px]:flex">
-        <div>
-          BUILT BY{" "}
-          <a
-            href="https://abhiishek.is-a.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
+      {/* persistent corner branding & feedback (only during active play on wide desktop to prevent duplicate branding with overlays) */}
+      {hud.phase === "playing" && (
+        <div className="pointer-events-auto absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-4 z-10 hidden items-center gap-2.5 font-mono text-[10.5px] tracking-[0.14em] text-white/40 min-[1200px]:flex">
+          <div>
+            BUILT BY{" "}
+            <a
+              href="https://abhiishek.is-a.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-white/70 underline decoration-white/20 transition-colors hover:text-amber hover:decoration-amber"
+            >
+              ABHISHEK ↗
+            </a>
+          </div>
+          <span className="text-white/25">//</span>
+          <button
+            type="button"
+            onClick={() => setFeedbackOpen(true)}
+            className="inline-flex items-center gap-1 font-bold text-amber underline decoration-amber/30 transition-colors hover:text-white"
           >
-            ABHISHEK ↗
-          </a>
+            <FeedbackIcon className="h-3.5 w-3.5" />
+            <span>FEEDBACK</span>
+          </button>
         </div>
-        <span className="text-white/25">//</span>
-        <button
-          type="button"
-          onClick={() => setFeedbackOpen(true)}
-          className="inline-flex items-center gap-1 font-bold text-amber underline decoration-amber/30 transition-colors hover:text-white"
-        >
-          <FeedbackIcon className="h-3.5 w-3.5" />
-          <span>FEEDBACK</span>
-        </button>
-      </div>
+      )}
 
       {/* Suggestion & Feedback Modal with Strix Security */}
       <FeedbackModal
