@@ -119,6 +119,11 @@ const FullscreenExitIcon = ({ className }: { className?: string }) => (
     <path d="M4 14h6v6m10-10h-6V4m0 6 7-7M3 21l7-7" />
   </Svg>
 );
+const FeedbackIcon = ({ className }: { className?: string }) => (
+  <Svg className={className}>
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+  </Svg>
+);
 
 /* ------------------------------ small pieces ------------------------------ */
 
@@ -426,10 +431,12 @@ function PauseOverlay({
   onResume,
   onRestart,
   onMenu,
+  onOpenFeedback,
 }: {
   onResume: () => void;
   onRestart: () => void;
   onMenu: () => void;
+  onOpenFeedback: () => void;
 }) {
   return (
     <div
@@ -441,12 +448,13 @@ function PauseOverlay({
         onPointerDown={(e) => e.stopPropagation()}
       >
         <PauseIcon className="mx-auto h-10 w-10 text-cyanx" />
-          <h2 className="title-shadow-sm mt-3 font-display text-4xl text-white sm:text-5xl">
-            PAUSED
-          </h2>        <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.24em] text-white/50">
+        <h2 className="title-shadow-sm mt-3 font-display text-4xl text-white sm:text-5xl">
+          PAUSED
+        </h2>
+        <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.24em] text-white/50">
           the tower can wait. probably.
         </p>
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-2.5">
           <GameButton
             className="w-full py-3.5 text-lg"
             onClick={onResume}
@@ -455,24 +463,48 @@ function PauseOverlay({
             <PlayIcon className="h-5 w-5" />
             RESUME
           </GameButton>
-          <GameButton
-            variant="btn-cyan"
-            className="w-full py-2.5 text-sm"
-            onClick={onRestart}
-            label="Restart"
+          <div className="grid grid-cols-2 gap-2">
+            <GameButton
+              variant="btn-cyan"
+              className="w-full py-2.5 text-sm"
+              onClick={onRestart}
+              label="Restart"
+            >
+              <RestartIcon className="h-4 w-4" />
+              RESTART
+            </GameButton>
+            <GameButton
+              variant="btn-ghost"
+              className="w-full py-2.5 text-sm"
+              onClick={onMenu}
+              label="Back to menu"
+            >
+              <HomeIcon className="h-4 w-4" />
+              MENU
+            </GameButton>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenFeedback();
+            }}
+            className="btn btn-amber w-full py-2.5 text-xs font-bold"
           >
-            <RestartIcon className="h-4 w-4" />
-            RESTART
-          </GameButton>
-          <GameButton
-            variant="btn-ghost"
-            className="w-full py-2.5 text-sm"
-            onClick={onMenu}
-            label="Back to menu"
+            ⚡ SUGGEST & FEEDBACK
+          </button>
+        </div>
+
+        <div className="mt-5 flex items-center justify-center gap-1.5 font-mono text-[10.5px] tracking-[0.14em] text-white/40">
+          <span>BUILT BY</span>
+          <a
+            href="https://abhiishek.is-a.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-amber underline decoration-amber/30 underline-offset-2 transition-colors hover:text-white"
           >
-            <HomeIcon className="h-4 w-4" />
-            MENU
-          </GameButton>
+            ABHISHEK ↗
+          </a>
         </div>
       </div>
     </div>
@@ -502,6 +534,12 @@ export default function App() {
       }
     } catch {}
   }, []);
+
+  useEffect(() => {
+    if (feedbackOpen && hud.phase === "playing") {
+      engineRef.current?.togglePause();
+    }
+  }, [feedbackOpen, hud.phase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -676,6 +714,19 @@ export default function App() {
                     <SoundOnIcon className="h-5 w-5" />
                   )}
                 </button>
+                <button
+                  type="button"
+                  className="iconbtn"
+                  aria-label="Suggestions & Feedback"
+                  title="Suggestions & Feedback"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    setFeedbackOpen(true);
+                  }}
+                >
+                  <FeedbackIcon className="h-5 w-5 text-amber" />
+                </button>
               </div>
             </div>
           </div>
@@ -703,8 +754,8 @@ export default function App() {
             </div>
           )}
 
-          {/* control hints (responsive for desktop & mobile) */}
-          <div className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 hidden -translate-x-1/2 items-center gap-2.5 sm:flex">
+          {/* control hints (responsive for wide desktop only — prevents collision on iPad/tablet) */}
+          <div className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 hidden -translate-x-1/2 items-center gap-2.5 min-[1200px]:flex">
             <Key k="SPACE" />
             <span className="text-[11px] font-bold tracking-[0.18em] text-white/50">
               DROP
@@ -727,7 +778,7 @@ export default function App() {
             </span>
           </div>
           {hud.phase === "playing" && (
-            <div className="animate-blink-soft pointer-events-none absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[11px] font-bold tracking-[0.34em] text-white/50 sm:hidden">
+            <div className="animate-blink-soft pointer-events-none absolute bottom-[max(1.2rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 text-[11px] font-bold tracking-[0.34em] text-white/50 min-[1200px]:hidden">
               TAP TO DROP
             </div>
           )}
@@ -755,11 +806,12 @@ export default function App() {
           onResume={togglePause}
           onRestart={start}
           onMenu={toMenu}
+          onOpenFeedback={() => setFeedbackOpen(true)}
         />
       )}
 
-      {/* persistent corner branding & feedback */}
-      <div className="pointer-events-auto absolute bottom-2 right-3 z-10 hidden items-center gap-2.5 font-mono text-[10px] tracking-[0.14em] text-white/40 sm:flex">
+      {/* persistent corner branding & feedback (only on wide desktop to prevent collision with keyboard hints or tablet touch areas) */}
+      <div className="pointer-events-auto absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-4 z-10 hidden items-center gap-2.5 font-mono text-[10.5px] tracking-[0.14em] text-white/40 min-[1200px]:flex">
         <div>
           BUILT BY{" "}
           <a
